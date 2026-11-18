@@ -4,572 +4,775 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#030d27">
-
-<title>MAYNARD QR STUDIO</title>
+<meta name="theme-color" content="#ffffff">
+<title>MAYNARD QR STUDIO | Free QR Code Generator</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 :root {
-    --navy:#030d27;
-    --blue:#0866ff;
-    --light-blue:#28a4ff;
-    --white:#fff;
-    --muted:#c3d0e9;
+    --purple: #6256e8;
+    --purple-dark: #5044d6;
+    --ink: #171725;
+    --muted: #626273;
+    --border: #e8e8ef;
+    --surface: #ffffff;
 }
 
 * {
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
-    font-family:Arial,Helvetica,sans-serif;
-    color:white;
-    background:
-    radial-gradient(ellipse at 80% 40%,#082c70 0%,transparent 45%),
-    radial-gradient(ellipse at 10% 90%,#061d4c 0%,transparent 40%),
-    var(--navy);
-    min-height:100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--ink);
+    background: white;
+    min-height: 100vh;
 }
 
-button,input,select {
-    font:inherit;
+button, input, select {
+    font: inherit;
 }
 
 button {
-    cursor:pointer;
-    border:none;
+    cursor: pointer;
+    border: none;
+    transition: .2s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.04);
 }
 
 header {
-    min-height:85px;
-    padding:18px 4%;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px;
-    border-bottom:1px solid #ffffff15;
-    background:#020a1eaa;
-    backdrop-filter:blur(15px);
+    height: 75px;
+    padding: 0 6%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eeeeF3;
+    background: rgba(255,255,255,.94);
+    position: sticky;
+    top: 0;
+    z-index: 20;
 }
 
-.logo {
-    font-size:27px;
-    font-weight:900;
-    letter-spacing:1px;
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-weight: 900;
+    font-size: 20px;
+    letter-spacing: -.5px;
 }
 
-.logo span {
-    display:inline-block;
-    background:var(--blue);
-    padding:10px 15px;
-    border-radius:25px;
-    font-size:15px;
-    margin-left:8px;
-    box-shadow:0 0 20px #0866ff66;
+.brand-icon {
+    width: 39px;
+    height: 39px;
+    background: linear-gradient(135deg,#6256e8,#9c4ee8);
+    color: white;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    font-size: 21px;
+}
+
+.brand span {
+    color: var(--purple);
 }
 
 nav {
-    display:flex;
-    align-items:center;
-    gap:25px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
 }
 
 nav a {
-    color:white;
-    text-decoration:none;
-    font-size:14px;
+    text-decoration: none;
+    color: #333344;
+    font-size: 14px;
+    font-weight: 600;
 }
 
-.nav-button {
-    background:var(--blue);
-    padding:13px 20px;
-    border-radius:12px;
-    font-weight:bold;
-}
-
-main {
-    padding:60px 4% 35px;
+nav .nav-cta {
+    background: var(--purple);
+    color: white;
+    padding: 12px 19px;
+    border-radius: 30px;
 }
 
 .hero {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    align-items:center;
-    gap:45px;
-    max-width:1450px;
-    margin:auto;
+    min-height: 670px;
+    padding: 70px 6% 55px;
+    background:
+        radial-gradient(ellipse at 12% 85%,#f7dafa 0%,transparent 35%),
+        radial-gradient(ellipse at 88% 70%,#dce8ff 0%,transparent 35%),
+        #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
 }
 
-.stars {
-    color:#ffb900;
-    font-size:27px;
-    margin-bottom:18px;
-}
-
-.stars small {
-    color:white;
-    font-size:16px;
+.eyebrow {
+    color: var(--purple);
+    background: #efedff;
+    padding: 9px 17px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    margin-bottom: 22px;
 }
 
 .hero h1 {
-    font-size:clamp(38px,5vw,70px);
-    margin-bottom:18px;
+    max-width: 850px;
+    font-size: clamp(38px,6vw,68px);
+    line-height: 1.08;
+    letter-spacing: -2.5px;
+    font-weight: 900;
+    margin-bottom: 20px;
 }
 
 .hero h1 span {
-    display:inline-block;
-    background:var(--blue);
-    padding:10px 18px;
-    border-radius:40px;
-    font-size:.5em;
-}
-
-.hero h2 {
-    font-size:clamp(25px,3vw,42px);
-    margin-bottom:15px;
+    color: var(--purple);
 }
 
 .hero-description {
-    color:var(--muted);
-    font-size:18px;
-    line-height:1.6;
+    max-width: 750px;
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.65;
+    margin-bottom: 30px;
 }
 
-.features {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:17px;
-    margin:30px 0;
+.quick-form {
+    display: flex;
+    width: min(760px,100%);
+    gap: 12px;
+    margin-bottom: 14px;
 }
 
-.features div {
-    display:flex;
-    align-items:center;
-    gap:12px;
-    font-size:14px;
+.quick-form input {
+    flex: 1;
+    min-width: 0;
+    height: 65px;
+    padding: 0 23px;
+    border: 2px solid #e4e4e9;
+    border-radius: 17px;
+    background: white;
+    outline: none;
+    font-size: 16px;
+    color: var(--ink);
 }
 
-.check {
-    background:var(--blue);
-    width:30px;
-    height:30px;
-    display:grid;
-    place-items:center;
-    border-radius:50%;
+.quick-form input:focus {
+    border-color: var(--purple);
 }
 
-.rating {
-    padding:20px 25px;
-    border:1px solid #3776d9;
-    background:#091939aa;
-    border-radius:22px;
-    margin-top:25px;
-    max-width:610px;
+.quick-form button {
+    min-width: 210px;
+    padding: 0 24px;
+    border-radius: 17px;
+    background: var(--purple);
+    color: white;
+    font-weight: 800;
+    font-size: 16px;
+    box-shadow: 0 9px 25px #6256e844;
 }
 
-.rating-content {
-    display:flex;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:15px;
-    margin-top:8px;
+.quick-note {
+    color: #777789;
+    font-size: 12px;
+    margin-bottom: 34px;
 }
 
-.rating-number {
-    font-size:45px;
-    font-weight:bold;
+.artwork {
+    width: min(660px,100%);
+    min-height: 315px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.rating-number small {
-    font-size:20px;
-    font-weight:normal;
+.poster {
+    width: 235px;
+    height: 290px;
+    border-radius: 19px;
+    padding: 20px;
+    background: linear-gradient(145deg,#a6e8dc,#e9c5ed 52%,#f6d5a6);
+    box-shadow: 0 24px 55px #6b5dbb35;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    transform: rotate(-3deg);
+    position: relative;
 }
 
-.rating-stars {
-    color:#ffbd16;
-    font-size:27px;
+.poster-brand {
+    background: white;
+    border-radius: 20px;
+    padding: 8px 15px;
+    color: var(--purple);
+    font-weight: 900;
+    font-size: 11px;
+}
+
+.poster h2 {
+    font-size: 31px;
+    line-height: .98;
+    text-align: center;
+    color: #172238;
+    font-weight: 900;
+}
+
+.poster-qr {
+    background: white;
+    border: 7px solid white;
+    padding: 5px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px #0002;
+}
+
+.poster-qr-grid {
+    width: 83px;
+    height: 83px;
+    background:
+        repeating-conic-gradient(#111 0 25%,white 0 50%) 0 0/12px 12px;
+    position: relative;
+}
+
+.poster-qr-grid:after {
+    content: "M";
+    position: absolute;
+    inset: 26px;
+    background: white;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    color: var(--purple);
+    border-radius: 4px;
+}
+
+.floating-card {
+    position: absolute;
+    background: white;
+    padding: 15px;
+    border-radius: 14px;
+    box-shadow: 0 12px 35px #25204a20;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.float-top {
+    right: 7%;
+    top: 45px;
+}
+
+.float-left {
+    left: 3%;
+    bottom: 55px;
+    color: var(--purple);
+}
+
+.float-bottom {
+    right: 2%;
+    bottom: 35px;
+    color: #34344a;
+}
+
+.section {
+    padding: 75px 6%;
+}
+
+.section-heading {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 40px;
+}
+
+.section-heading h2 {
+    font-size: clamp(28px,4vw,42px);
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+}
+
+.section-heading p {
+    color: var(--muted);
+    line-height: 1.6;
 }
 
 /* GENERATOR */
 
+.generator-section {
+    background: #f8f8fc;
+}
+
 .generator {
-    background:white;
-    color:#07152e;
-    border-radius:24px;
-    padding:28px;
-    max-width:610px;
-    width:100%;
-    margin:auto;
-    box-shadow:0 0 0 12px #105dc71f,
-    0 20px 70px #0006;
+    max-width: 760px;
+    margin: auto;
+    padding: 32px;
+    border-radius: 25px;
+    background: white;
+    border: 1px solid #eeeeF4;
+    box-shadow: 0 18px 55px #25204a0c;
 }
 
 .generator-heading {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-    margin-bottom:22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 25px;
 }
 
 .generator-heading h2 {
-    font-size:24px;
+    font-size: 24px;
 }
 
 .live {
-    background:#d7fbe6;
-    color:#07833b;
-    padding:9px 12px;
-    border-radius:30px;
-    font-size:12px;
-    font-weight:bold;
+    background: #e5faed;
+    color: #168343;
+    padding: 9px 13px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: bold;
 }
 
 .field {
-    margin-bottom:16px;
+    margin-bottom: 17px;
 }
 
 .field label {
-    display:block;
-    font-weight:bold;
-    font-size:14px;
-    margin-bottom:8px;
+    display: block;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 8px;
 }
 
-.field input,
+.field input:not([type=checkbox]):not([type=color]),
 .field select {
-    width:100%;
-    padding:14px;
-    border:1px solid #d8e3f8;
-    background:#f1f5ff;
-    border-radius:12px;
-    outline:none;
-    color:#07152e;
+    width: 100%;
+    height: 51px;
+    padding: 0 15px;
+    border: 1px solid #e1e1eb;
+    border-radius: 12px;
+    outline: none;
+    background: #fafaff;
+    color: var(--ink);
 }
 
 .field input:focus,
 .field select:focus {
-    border-color:var(--blue);
-    box-shadow:0 0 0 3px #0866ff22;
+    border-color: var(--purple);
+    box-shadow: 0 0 0 3px #6256e81c;
 }
 
 .type-selector {
-    margin-bottom:20px;
+    margin-bottom: 22px;
 }
 
 .type-selector label {
-    display:block;
-    font-weight:bold;
-    margin-bottom:9px;
+    display: block;
+    margin-bottom: 9px;
+    font-weight: bold;
+    font-size: 13px;
 }
 
 .type-selector select {
-    width:100%;
-    padding:15px;
-    border:1px solid #d8e3f8;
-    background:#f1f5ff;
-    border-radius:12px;
-    color:#07152e;
+    width: 100%;
+    height: 53px;
+    padding: 0 15px;
+    border: 1px solid #e1e1eb;
+    border-radius: 12px;
+    background: #fafaff;
+    color: var(--ink);
 }
 
 .form-section {
-    display:none;
+    display: none;
 }
 
 .form-section.active {
-    display:block;
+    display: block;
 }
 
 .controls {
-    display:flex;
-    gap:10px;
-    margin:18px 0;
+    display: flex;
+    gap: 11px;
+    margin: 18px 0;
 }
 
-.primary,.secondary,.pdf-button {
-    flex:1;
-    padding:15px 10px;
-    border-radius:12px;
-    font-weight:bold;
+.primary, .secondary, .pdf-button {
+    flex: 1;
+    min-height: 51px;
+    padding: 13px;
+    border-radius: 12px;
+    font-weight: bold;
 }
 
 .primary {
-    background:var(--blue);
-    color:white;
+    background: var(--purple);
+    color: white;
 }
 
 .secondary {
-    background:#06152f;
-    color:white;
+    background: #f0efff;
+    color: var(--purple);
 }
 
 .pdf-button {
-    background:#eaf1ff;
-    color:#0756d9;
-    border:1px solid #c9dcff;
-}
-
-button:hover {
-    filter:brightness(1.1);
-    transform:translateY(-1px);
+    background: #f0efff;
+    color: var(--purple);
 }
 
 .customization {
-    display:none;
-    flex-wrap:wrap;
-    justify-content:space-between;
-    gap:15px;
-    padding:15px;
-    margin:15px 0;
-    background:#f1f5ff;
-    border-radius:14px;
+    display: none;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 18px;
+    background: #f8f7ff;
+    border-radius: 14px;
+    margin: 15px 0;
 }
 
 .color-option {
-    display:flex;
-    flex-direction:column;
-    gap:7px;
-    font-size:12px;
-    font-weight:bold;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .color-option input {
-    width:55px;
-    height:35px;
-    cursor:pointer;
+    width: 55px;
+    height: 35px;
+    cursor: pointer;
 }
-
-#qrcode {
-    min-height:240px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:15px;
-    margin:10px auto;
-}
-
-#qrcode canvas {
-    max-width:100%;
-    height:auto !important;
-}
-
-#qrcode img {
-    max-width:100%;
-}
-
-.qr-caption {
-    text-align:center;
-    color:var(--blue);
-    font-weight:bold;
-    letter-spacing:3px;
-    font-size:11px;
-    margin-top:8px;
-}
-
-.status {
-    text-align:center;
-    color:#64748b;
-    font-size:13px;
-    margin-top:12px;
-    min-height:18px;
-}
-
-/* LOGO UPLOAD */
 
 .logo-upload {
-    background:#f1f5ff;
-    padding:16px;
-    border:1px dashed #8baeea;
-    border-radius:13px;
-    margin:15px 0;
+    background: #fafaff;
+    border: 1px dashed #aaa2ed;
+    padding: 17px;
+    border-radius: 13px;
+    margin: 17px 0;
 }
 
 .logo-upload label {
-    font-weight:bold;
-    font-size:13px;
-    display:block;
-    margin-bottom:10px;
+    display: block;
+    font-weight: bold;
+    font-size: 13px;
+    margin-bottom: 10px;
 }
 
 .logo-upload input {
-    width:100%;
-    font-size:12px;
+    width: 100%;
+    font-size: 12px;
 }
 
 .logo-preview {
-    display:none;
-    width:65px;
-    height:65px;
-    object-fit:contain;
-    margin-top:12px;
-    padding:5px;
-    background:white;
-    border-radius:10px;
-    border:1px solid #ddd;
+    display: none;
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 9px;
+    padding: 5px;
+    margin-top: 12px;
 }
 
 .remove-logo {
-    display:none;
-    background:#ffe5e5;
-    color:#c62828;
-    padding:8px 12px;
-    border-radius:8px;
-    margin-top:8px;
-    font-size:12px;
+    display: none;
+    background: #ffe9e9;
+    color: #bd2525;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-top: 8px;
+    font-size: 12px;
+}
+
+#qrcode {
+    min-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    margin: 10px auto;
+    overflow: hidden;
+}
+
+#qrcode canvas, #qrcode img {
+    max-width: 100%;
+    height: auto !important;
+}
+
+.qr-caption {
+    text-align: center;
+    color: var(--purple);
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.status {
+    text-align: center;
+    color: #777789;
+    font-size: 13px;
+    min-height: 20px;
+    margin-top: 10px;
+}
+
+/* FEATURES */
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 20px;
+}
+
+.feature-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 19px;
+    padding: 25px;
+    transition: .25s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px #0000000b;
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    background: #f0efff;
+    color: var(--purple);
+    border-radius: 14px;
+    font-size: 23px;
+    margin-bottom: 18px;
+}
+
+.feature-card h3 {
+    font-size: 17px;
+    margin-bottom: 9px;
+}
+
+.feature-card p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 /* REVIEW */
 
-.review-cards {
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:18px;
-    max-width:1450px;
-    margin:35px auto 20px;
+.review-section {
+    background: linear-gradient(130deg,#f8f4ff,#f0f5ff);
+}
+
+.review-grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 18px;
+    max-width: 1300px;
+    margin: auto;
 }
 
 .review-card {
-    padding:22px;
-    border:1px solid #234d8e;
-    background:#0b1c3ebf;
-    border-radius:20px;
+    background: white;
+    border: 1px solid #eeeaf9;
+    border-radius: 18px;
+    padding: 23px;
 }
 
 .review-card .emoji {
-    font-size:27px;
-    margin-bottom:12px;
+    font-size: 25px;
+    margin-bottom: 13px;
 }
 
 .review-card h3 {
-    font-size:17px;
-    margin-bottom:8px;
+    font-size: 15px;
+    margin-bottom: 10px;
 }
 
 .review-card strong {
-    display:block;
-    font-size:23px;
-    margin-bottom:8px;
+    display: block;
+    font-size: 26px;
+    color: var(--purple);
+    margin-bottom: 9px;
 }
 
 .review-card p {
-    color:var(--muted);
-    line-height:1.5;
-    font-size:14px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 .verdict {
-    max-width:1500px;
-    margin:25px auto 0;
-    padding:23px;
-    border:1px solid var(--blue);
-    border-radius:22px;
-    background:linear-gradient(110deg,#0b2452,#07152f);
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:20px;
+    max-width: 1250px;
+    margin: 40px auto 0;
+    background: #211c4e;
+    color: white;
+    border-radius: 23px;
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
 }
 
 .verdict p {
-    color:var(--muted);
-    line-height:1.5;
-    max-width:850px;
-    margin-top:7px;
+    color: #d1cdef;
+    line-height: 1.6;
+    margin-top: 9px;
+    max-width: 750px;
+    font-size: 14px;
 }
 
-.verdict-button {
-    background:var(--blue);
-    color:white;
-    padding:16px 23px;
-    border-radius:35px;
-    font-weight:bold;
-    white-space:nowrap;
+.verdict button {
+    background: white;
+    color: var(--purple);
+    padding: 15px 22px;
+    border-radius: 30px;
+    font-weight: 800;
+    white-space: nowrap;
 }
 
 footer {
-    text-align:center;
-    padding:35px 15px;
-    color:#9eafd0;
-    font-size:13px;
+    background: #17152e;
+    color: #c6c4d9;
+    text-align: center;
+    padding: 40px 15px;
+    font-size: 13px;
+    line-height: 2;
 }
 
 footer strong {
-    color:white;
+    color: white;
+    font-size: 17px;
 }
 
-@media(max-width:950px) {
-    .hero {
-        grid-template-columns:1fr;
-    }
-
-    .review-cards {
-        grid-template-columns:repeat(2,1fr);
+@media(max-width:900px) {
+    .feature-grid, .review-grid {
+        grid-template-columns: repeat(2,1fr);
     }
 }
 
 @media(max-width:600px) {
     header {
-        padding:15px 5%;
+        height: 65px;
+        padding: 0 5%;
     }
 
-    .logo {
-        font-size:18px;
+    .brand {
+        font-size: 16px;
     }
 
-    .logo span {
-        font-size:10px;
-        padding:8px;
+    .brand-icon {
+        width: 34px;
+        height: 34px;
     }
 
-    nav a:not(.nav-button) {
-        display:none;
+    nav {
+        gap: 12px;
     }
 
-    .nav-button {
-        font-size:12px;
-        padding:11px;
+    nav a:not(.nav-cta) {
+        display: none;
     }
 
-    main {
-        padding:35px 5%;
+    nav .nav-cta {
+        font-size: 12px;
+        padding: 10px 13px;
+    }
+
+    .hero {
+        padding: 55px 5% 35px;
+        min-height: auto;
     }
 
     .hero h1 {
-        font-size:39px;
+        font-size: 42px;
+        letter-spacing: -1.8px;
     }
 
-    .features {
-        grid-template-columns:1fr;
+    .hero-description {
+        font-size: 15px;
+    }
+
+    .quick-form {
+        flex-direction: column;
+    }
+
+    .quick-form input {
+        height: 58px;
+    }
+
+    .quick-form button {
+        min-height: 58px;
+    }
+
+    .artwork {
+        min-height: 300px;
+        transform: scale(.92);
+        width: 110%;
+    }
+
+    .poster {
+        width: 210px;
+        height: 270px;
+    }
+
+    .float-top {
+        right: 0;
+    }
+
+    .float-left {
+        left: 0;
+    }
+
+    .section {
+        padding: 55px 5%;
     }
 
     .generator {
-        padding:19px;
+        padding: 20px;
     }
 
     .generator-heading h2 {
-        font-size:18px;
+        font-size: 19px;
     }
 
     .controls {
-        flex-direction:column;
+        flex-direction: column;
     }
 
-    .review-cards {
-        grid-template-columns:1fr;
+    .feature-grid, .review-grid {
+        grid-template-columns: 1fr;
     }
 
     .verdict {
-        flex-direction:column;
-        align-items:flex-start;
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    .verdict-button {
-        width:100%;
+    .verdict button {
+        width: 100%;
     }
 }
 </style>
@@ -578,309 +781,309 @@ footer strong {
 <body>
 
 <header>
-    <div class="logo">
-        MAYNARD <span>QR STUDIO</span>
+    <div class="brand">
+        <div class="brand-icon">M</div>
+        <div>MAYNARD <span>QR STUDIO</span></div>
     </div>
 
     <nav>
         <a href="#features">Features</a>
         <a href="#generator">Generator</a>
-        <a href="#reviews">Reviews</a>
-        <a class="nav-button" href="#generator">Get Started</a>
+        <a href="#reviews">Review</a>
+        <a href="#generator" class="nav-cta">Get Started</a>
     </nav>
 </header>
 
 <main>
 
 <section class="hero">
+    <div class="eyebrow">✦ YOUR CREATIVE QR CODE STUDIO</div>
 
-<div>
-
-    <div class="stars">★★★★★ <small>Full Review</small></div>
-
-    <h1>MAYNARD <span>QR STUDIO</span></h1>
-
-    <h2>Create Beautiful QR Codes</h2>
+    <h1>Create beautiful, <span>custom QR codes.</span></h1>
 
     <p class="hero-description">
-        Generate, customize and download professional QR codes
-        with MAYNARD. Everything you need in one place.
+        Generate professional QR codes in seconds. Customize your colours,
+        add your own logo, and download your designs with MAYNARD QR STUDIO.
     </p>
 
-    <div class="features" id="features">
-        <div><span class="check">✓</span> Wi-Fi QR Codes</div>
-        <div><span class="check">✓</span> Contact QR Codes</div>
-        <div><span class="check">✓</span> Logo Uploads</div>
-        <div><span class="check">✓</span> PNG & PDF Downloads</div>
-    </div>
+    <form class="quick-form" id="quickForm">
+        <input type="url" id="quickUrl"
+        placeholder="Enter your URL"
+        aria-label="Enter your website URL">
+        <button type="submit">Generate QR Code</button>
+    </form>
 
-    <div class="rating">
-        <strong>Overall Design Rating</strong>
-        <div class="rating-content">
-            <div class="rating-number">9.0 <small>/ 10</small></div>
-            <div class="rating-stars">★★★★★</div>
-            <span>Excellent Choice!</span>
-        </div>
-    </div>
+    <p class="quick-note">
+        Free QR generation • Custom colours • Logo uploads • Easy downloads
+    </p>
 
-</div>
+    <div class="artwork">
+        <div class="floating-card float-top">✦ Customise your QR code</div>
 
-<!-- QR CODE GENERATOR -->
-
-<div class="generator" id="generator">
-
-    <div class="generator-heading">
-        <h2>QR Code Generator</h2>
-        <span class="live">● Live preview</span>
-    </div>
-
-    <div class="type-selector">
-        <label for="qrType">Choose QR code type</label>
-        <select id="qrType">
-            <option value="url">Website / URL</option>
-            <option value="text">Plain Text</option>
-            <option value="wifi">Wi-Fi QR Code</option>
-            <option value="contact">Contact / vCard</option>
-        </select>
-    </div>
-
-    <!-- URL -->
-
-    <div class="form-section active" id="urlFields">
-        <div class="field">
-            <label for="urlInput">Website address</label>
-            <input id="urlInput" type="text"
-            placeholder="https://example.com"
-            value="https://example.com">
-        </div>
-    </div>
-
-    <!-- TEXT -->
-
-    <div class="form-section" id="textFields">
-        <div class="field">
-            <label for="textInput">Your text</label>
-            <input id="textInput" type="text"
-            placeholder="Enter your text">
-        </div>
-    </div>
-
-    <!-- WIFI -->
-
-    <div class="form-section" id="wifiFields">
-
-        <div class="field">
-            <label for="wifiName">Wi-Fi network name (SSID)</label>
-            <input id="wifiName" type="text"
-            placeholder="Enter Wi-Fi name">
+        <div class="poster">
+            <div class="poster-brand">MAYNARD QR STUDIO</div>
+            <h2>SCAN<br>CONNECT<br>EXPLORE</h2>
+            <div class="poster-qr">
+                <div class="poster-qr-grid"></div>
+            </div>
         </div>
 
-        <div class="field">
-            <label for="wifiPassword">Wi-Fi password</label>
-            <input id="wifiPassword" type="text"
-            placeholder="Enter Wi-Fi password">
+        <div class="floating-card float-left">● ● ● ● ●</div>
+        <div class="floating-card float-bottom">▦ &nbsp; ◉ &nbsp; ▣</div>
+    </div>
+</section>
+
+<section class="section generator-section" id="generator">
+    <div class="section-heading">
+        <h2>Your QR code generator</h2>
+        <p>Create your own QR code, customize its appearance and download it.</p>
+    </div>
+
+    <div class="generator">
+        <div class="generator-heading">
+            <h2>QR Code Generator</h2>
+            <span class="live">● LIVE PREVIEW</span>
         </div>
 
-        <div class="field">
-            <label for="wifiSecurity">Security type</label>
-            <select id="wifiSecurity">
-                <option value="WPA">WPA / WPA2 / WPA3</option>
-                <option value="WEP">WEP</option>
-                <option value="nopass">No password</option>
+        <div class="type-selector">
+            <label for="qrType">Choose QR code type</label>
+            <select id="qrType">
+                <option value="url">Website / URL</option>
+                <option value="text">Plain Text</option>
+                <option value="wifi">Wi-Fi QR Code</option>
+                <option value="contact">Contact / vCard</option>
             </select>
         </div>
 
-        <div class="field">
-            <label>
-                <input type="checkbox" id="wifiHidden"
-                style="width:auto;">
-                Hidden network
-            </label>
+        <div class="form-section active" id="urlFields">
+            <div class="field">
+                <label for="urlInput">Website address</label>
+                <input id="urlInput" type="text"
+                placeholder="https://example.com"
+                value="https://example.com">
+            </div>
         </div>
 
+        <div class="form-section" id="textFields">
+            <div class="field">
+                <label for="textInput">Your text</label>
+                <input id="textInput" type="text" placeholder="Enter your text">
+            </div>
+        </div>
+
+        <div class="form-section" id="wifiFields">
+            <div class="field">
+                <label for="wifiName">Wi-Fi network name (SSID)</label>
+                <input id="wifiName" type="text" placeholder="Enter Wi-Fi name">
+            </div>
+
+            <div class="field">
+                <label for="wifiPassword">Wi-Fi password</label>
+                <input id="wifiPassword" type="password" placeholder="Enter Wi-Fi password">
+            </div>
+
+            <div class="field">
+                <label for="wifiSecurity">Security type</label>
+                <select id="wifiSecurity">
+                    <option value="WPA">WPA / WPA2 / WPA3</option>
+                    <option value="WEP">WEP</option>
+                    <option value="nopass">No password</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>
+                    <input type="checkbox" id="wifiHidden" style="width:auto;">
+                    Hidden network
+                </label>
+            </div>
+        </div>
+
+        <div class="form-section" id="contactFields">
+            <div class="field">
+                <label for="contactName">Full name</label>
+                <input id="contactName" type="text" placeholder="Enter full name">
+            </div>
+
+            <div class="field">
+                <label for="contactPhone">Phone number</label>
+                <input id="contactPhone" type="tel" placeholder="+233...">
+            </div>
+
+            <div class="field">
+                <label for="contactEmail">Email address</label>
+                <input id="contactEmail" type="email" placeholder="example@email.com">
+            </div>
+
+            <div class="field">
+                <label for="contactCompany">Organisation</label>
+                <input id="contactCompany" type="text" placeholder="Company name">
+            </div>
+
+            <div class="field">
+                <label for="contactWebsite">Website</label>
+                <input id="contactWebsite" type="text" placeholder="https://example.com">
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="secondary" type="button" onclick="toggleCustomization()">
+                🎨 Customize QR
+            </button>
+            <button class="primary" type="button" onclick="generateQR()">
+                Generate QR Code
+            </button>
+        </div>
+
+        <div class="customization" id="customization">
+            <div class="color-option">
+                <label for="darkColor">QR colour</label>
+                <input type="color" id="darkColor" value="#171725">
+            </div>
+
+            <div class="color-option">
+                <label for="lightColor">Background</label>
+                <input type="color" id="lightColor" value="#ffffff">
+            </div>
+
+            <div class="color-option">
+                <label for="qrSize">QR size</label>
+                <select id="qrSize">
+                    <option value="180">Small</option>
+                    <option value="240" selected>Medium</option>
+                    <option value="300">Large</option>
+                    <option value="350">Extra Large</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="logo-upload">
+            <label for="logoFile">Upload your centre logo (optional)</label>
+            <input type="file" id="logoFile"
+            accept="image/png,image/jpeg,image/webp">
+            <img id="logoPreview" class="logo-preview" alt="Logo preview">
+            <button type="button" class="remove-logo" id="removeLogo"
+            onclick="removeLogo()">Remove logo</button>
+        </div>
+
+        <div id="qrcode"></div>
+        <div class="qr-caption">MAYNARD • PREMIUM • PROFESSIONAL</div>
+
+        <div class="controls">
+            <button class="primary" type="button" onclick="downloadPNG()">
+                ↓ Download PNG
+            </button>
+            <button class="secondary" type="button" onclick="downloadJPG()">
+                ↓ Download JPG
+            </button>
+            <button class="pdf-button" type="button" onclick="downloadPDF()">
+                ↓ Download PDF
+            </button>
+        </div>
+
+        <p class="status" id="status">Your QR code is ready.</p>
     </div>
-
-    <!-- CONTACT -->
-
-    <div class="form-section" id="contactFields">
-
-        <div class="field">
-            <label for="contactName">Full name</label>
-            <input id="contactName" type="text"
-            placeholder="Enter full name">
-        </div>
-
-        <div class="field">
-            <label for="contactPhone">Phone number</label>
-            <input id="contactPhone" type="tel"
-            placeholder="+233...">
-        </div>
-
-        <div class="field">
-            <label for="contactEmail">Email address</label>
-            <input id="contactEmail" type="email"
-            placeholder="example@email.com">
-        </div>
-
-        <div class="field">
-            <label for="contactCompany">Organisation</label>
-            <input id="contactCompany" type="text"
-            placeholder="Company or organisation">
-        </div>
-
-        <div class="field">
-            <label for="contactWebsite">Website</label>
-            <input id="contactWebsite" type="text"
-            placeholder="https://example.com">
-        </div>
-
-    </div>
-
-    <!-- CUSTOMIZATION -->
-
-    <div class="controls">
-        <button class="secondary" onclick="toggleCustomization()">
-            🎨 Customize
-        </button>
-
-        <button class="primary" onclick="generateQR()">
-            Generate QR
-        </button>
-    </div>
-
-    <div class="customization" id="customization">
-
-        <div class="color-option">
-            <label for="darkColor">QR colour</label>
-            <input type="color" id="darkColor" value="#07152e">
-        </div>
-
-        <div class="color-option">
-            <label for="lightColor">Background</label>
-            <input type="color" id="lightColor" value="#ffffff">
-        </div>
-
-        <div class="color-option">
-            <label for="qrSize">QR size</label>
-            <select id="qrSize">
-                <option value="180">Small</option>
-                <option value="240" selected>Medium</option>
-                <option value="300">Large</option>
-                <option value="350">Extra Large</option>
-            </select>
-        </div>
-
-    </div>
-
-    <!-- LOGO UPLOAD -->
-
-    <div class="logo-upload">
-        <label for="logoFile">Upload your centre logo (optional)</label>
-
-        <input type="file" id="logoFile"
-        accept="image/png,image/jpeg,image/webp">
-
-        <img id="logoPreview" class="logo-preview" alt="Logo preview">
-
-        <br>
-
-        <button class="remove-logo" id="removeLogo"
-        onclick="removeLogo()">Remove logo</button>
-    </div>
-
-    <!-- QR PREVIEW -->
-
-    <div id="qrcode"></div>
-
-    <div class="qr-caption">
-        PREMIUM • CLEAN • PROFESSIONAL
-    </div>
-
-    <div class="controls">
-        <button class="primary" onclick="downloadPNG()">
-            ↓ Download PNG
-        </button>
-
-        <button class="pdf-button" onclick="downloadPDF()">
-            ↓ Download PDF
-        </button>
-    </div>
-
-    <p class="status" id="status">
-        Your QR code is ready.
-    </p>
-
-</div>
-
 </section>
 
-<section class="review-cards" id="reviews">
-
-    <div class="review-card">
-        <div class="emoji">☆</div>
-        <h3>Branding</h3>
-        <strong>9/10</strong>
-        <p>A strong, modern brand with a memorable identity.</p>
+<section class="section" id="features">
+    <div class="section-heading">
+        <h2>Everything you need in one place</h2>
+        <p>Simple tools to create QR codes for your personal and business needs.</p>
     </div>
 
-    <div class="review-card">
-        <div class="emoji">🎨</div>
-        <h3>Colour Combination</h3>
-        <strong>9/10</strong>
-        <p>Elegant navy and electric-blue colour scheme.</p>
-    </div>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <div class="feature-icon">⌘</div>
+            <h3>Website QR Codes</h3>
+            <p>Turn website links into scannable QR codes.</p>
+        </div>
 
-    <div class="review-card">
-        <div class="emoji">💎</div>
-        <h3>Professional Appearance</h3>
-        <strong>9/10</strong>
-        <p>Clean, polished and modern design.</p>
-    </div>
+        <div class="feature-card">
+            <div class="feature-icon">◉</div>
+            <h3>Wi-Fi QR Codes</h3>
+            <p>Make it easier for guests to connect to your Wi-Fi.</p>
+        </div>
 
-    <div class="review-card">
-        <div class="emoji">⚡</div>
-        <h3>Features</h3>
-        <strong>10/10</strong>
-        <p>Wi-Fi, contacts, logo uploads and PDF downloads.</p>
-    </div>
+        <div class="feature-card">
+            <div class="feature-icon">♧</div>
+            <h3>Contact QR Codes</h3>
+            <p>Share contact information through a scannable code.</p>
+        </div>
 
+        <div class="feature-card">
+            <div class="feature-icon">✦</div>
+            <h3>Custom Branding</h3>
+            <p>Personalize your QR codes with colours and a logo.</p>
+        </div>
+    </div>
 </section>
 
-<section class="verdict">
-    <div>
-        <h3>💡 Final Verdict</h3>
-        <p>
-            MAYNARD QR STUDIO delivers a professional QR code
-            generator with Wi-Fi, contact, logo and download
-            features in one beautiful interface.
-        </p>
+<section class="section review-section" id="reviews">
+    <div class="section-heading">
+        <h2>Discover MAYNARD QR STUDIO</h2>
+        <p>A clean, modern and convenient QR code creation experience.</p>
     </div>
 
-    <button class="verdict-button"
-    onclick="document.getElementById('generator').scrollIntoView({behavior:'smooth'})">
-        👍 Get Started
-    </button>
+    <div class="review-grid">
+        <div class="review-card">
+            <div class="emoji">✦</div>
+            <h3>Branding</h3>
+            <strong>9/10</strong>
+            <p>A memorable brand identity and a clear creative direction.</p>
+        </div>
+
+        <div class="review-card">
+            <div class="emoji">🎨</div>
+            <h3>Interface Design</h3>
+            <strong>9/10</strong>
+            <p>Clean white surfaces with elegant purple highlights.</p>
+        </div>
+
+        <div class="review-card">
+            <div class="emoji">💎</div>
+            <h3>User Experience</h3>
+            <strong>9/10</strong>
+            <p>Simple controls and an easy-to-understand workflow.</p>
+        </div>
+
+        <div class="review-card">
+            <div class="emoji">⚡</div>
+            <h3>Features</h3>
+            <strong>10/10</strong>
+            <p>Website, text, Wi-Fi, contacts, logos and downloads.</p>
+        </div>
+    </div>
+
+    <div class="verdict">
+        <div>
+            <h2>Ready to create your QR code?</h2>
+            <p>
+                Start creating professional QR codes with MAYNARD QR STUDIO.
+                Customize your design and download it in your preferred format.
+            </p>
+        </div>
+
+        <button onclick="document.getElementById('generator').scrollIntoView({behavior:'smooth'})">
+            Get Started →
+        </button>
+    </div>
 </section>
 
 </main>
 
 <footer>
     <strong>MAYNARD QR STUDIO</strong>
-    <p style="margin-top:10px;">Create • Customize • Download</p>
-    <p style="margin-top:10px;">
-        © <span id="year"></span> MAYNARD. All Rights Reserved.
-    </p>
+    <p>Create • Customize • Download</p>
+    <p>© <span id="year"></span> MAYNARD. All Rights Reserved.</p>
 </footer>
 
 <script>
-const qrContainer = document.getElementById("qrcode");
-const statusText = document.getElementById("status");
+const $ = id => document.getElementById(id);
+const qrContainer = $("qrcode");
+const statusText = $("status");
 
 let uploadedLogo = null;
 let generatedPayload = "";
-let generationNumber = 0;
-
-const $ = id => document.getElementById(id);
 
 function escapeWifi(value) {
     return String(value).replace(/([\\;,:"])/g, "\\$1");
@@ -913,10 +1116,8 @@ function getPayload() {
         const name = $("wifiName").value.trim();
         const password = $("wifiPassword").value;
         const security = $("wifiSecurity").value;
-        const hidden = $("wifiHidden").checked;
 
         if (!name) throw new Error("Enter your Wi-Fi network name.");
-
         if (security !== "nopass" && !password) {
             throw new Error("Enter your Wi-Fi password.");
         }
@@ -924,7 +1125,7 @@ function getPayload() {
         return "WIFI:T:" + security +
             ";S:" + escapeWifi(name) +
             ";P:" + (security === "nopass" ? "" : escapeWifi(password)) +
-            ";H:" + hidden + ";;";
+            ";H:" + $("wifiHidden").checked + ";;";
     }
 
     if (type === "contact") {
@@ -948,26 +1149,21 @@ function getPayload() {
         if (website) lines.push("URL:" + escapeVCard(website));
 
         lines.push("END:VCARD");
-
         return lines.join("\n");
     }
 }
 
 function generateQR() {
-    generationNumber++;
-    const currentGeneration = generationNumber;
-
     try {
         if (typeof QRCode === "undefined") {
             throw new Error("QR library unavailable. Check your internet connection.");
         }
 
         const payload = getPayload();
-        generatedPayload = payload;
+        const size = Number($("qrSize").value);
 
         qrContainer.innerHTML = "";
-
-        const size = Number($("qrSize").value);
+        generatedPayload = payload;
 
         new QRCode(qrContainer, {
             text: payload,
@@ -979,7 +1175,6 @@ function generateQR() {
         });
 
         statusText.textContent = "QR code generated successfully!";
-
     } catch (error) {
         qrContainer.innerHTML = "";
         generatedPayload = "";
@@ -989,7 +1184,6 @@ function generateQR() {
 
 function toggleCustomization() {
     const panel = $("customization");
-
     panel.style.display =
         panel.style.display === "flex" ? "none" : "flex";
 }
@@ -1009,20 +1203,18 @@ function updateForm() {
     };
 
     $(selected[type]).classList.add("active");
-
     generateQR();
 }
 
-// Draw a clean export image with the optional logo.
 async function createExportCanvas() {
     if (!generatedPayload) {
-        throw new Error("Please enter valid content and generate a QR code first.");
+        throw new Error("Please generate a QR code first.");
     }
 
     const source = qrContainer.querySelector("canvas");
 
     if (!source) {
-        throw new Error("QR preview is not ready. Please generate it again.");
+        throw new Error("QR preview is not ready. Generate it again.");
     }
 
     const canvas = document.createElement("canvas");
@@ -1038,7 +1230,6 @@ async function createExportCanvas() {
     ctx.fillRect(0, 0, size, size);
 
     const qrSize = size - padding * 2;
-
     ctx.drawImage(source, padding, padding, qrSize, qrSize);
 
     if (uploadedLogo) {
@@ -1046,7 +1237,6 @@ async function createExportCanvas() {
         const x = (size - logoSize) / 2;
         const y = (size - logoSize) / 2;
 
-        // White backing behind the centre logo.
         ctx.fillStyle = $("lightColor").value;
         ctx.beginPath();
         ctx.arc(size / 2, size / 2, logoSize / 2 + 12, 0, Math.PI * 2);
@@ -1056,7 +1246,6 @@ async function createExportCanvas() {
         ctx.beginPath();
         ctx.arc(size / 2, size / 2, logoSize / 2, 0, Math.PI * 2);
         ctx.clip();
-
         ctx.drawImage(uploadedLogo, x, y, logoSize, logoSize);
         ctx.restore();
     }
@@ -1067,13 +1256,24 @@ async function createExportCanvas() {
 async function downloadPNG() {
     try {
         const canvas = await createExportCanvas();
-
         const link = document.createElement("a");
         link.download = "MAYNARD-QR-CODE.png";
         link.href = canvas.toDataURL("image/png");
         link.click();
-
         statusText.textContent = "PNG downloaded successfully!";
+    } catch (error) {
+        statusText.textContent = error.message;
+    }
+}
+
+async function downloadJPG() {
+    try {
+        const canvas = await createExportCanvas();
+        const link = document.createElement("a");
+        link.download = "MAYNARD-QR-CODE.jpg";
+        link.href = canvas.toDataURL("image/jpeg", 0.95);
+        link.click();
+        statusText.textContent = "JPG downloaded successfully!";
     } catch (error) {
         statusText.textContent = error.message;
     }
@@ -1087,7 +1287,6 @@ async function downloadPDF() {
 
         const canvas = await createExportCanvas();
         const image = canvas.toDataURL("image/png");
-
         const { jsPDF } = window.jspdf;
 
         const pdf = new jsPDF({
@@ -1096,46 +1295,56 @@ async function downloadPDF() {
             format: "a4"
         });
 
-        pdf.setFillColor(3, 13, 39);
+        pdf.setFillColor(248, 247, 255);
         pdf.rect(0, 0, 210, 297, "F");
 
-        pdf.setTextColor(255, 255, 255);
+        pdf.setTextColor(80, 68, 214);
         pdf.setFontSize(22);
-        pdf.text("MAYNARD QR STUDIO", 105, 25, {
-            align: "center"
-        });
+        pdf.text("MAYNARD QR STUDIO", 105, 25, {align:"center"});
 
-        pdf.setTextColor(170, 195, 235);
+        pdf.setTextColor(90, 90, 110);
         pdf.setFontSize(11);
-        pdf.text("Premium QR Code", 105, 36, {
-            align: "center"
-        });
+        pdf.text("Your custom QR code", 105, 36, {align:"center"});
 
         pdf.addImage(image, "PNG", 35, 60, 140, 140);
 
-        pdf.setTextColor(255, 255, 255);
+        pdf.setTextColor(80, 68, 214);
         pdf.setFontSize(10);
-        pdf.text("Generated with MAYNARD QR STUDIO", 105, 220, {
-            align: "center"
-        });
+        pdf.text("Create • Customize • Download", 105, 220, {align:"center"});
 
         pdf.save("MAYNARD-QR-CODE.pdf");
-
         statusText.textContent = "PDF downloaded successfully!";
-
     } catch (error) {
         statusText.textContent = error.message;
     }
 }
 
+// Quick URL form.
+$("quickForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const value = $("quickUrl").value.trim();
+
+    if (!value) {
+        $("quickUrl").focus();
+        return;
+    }
+
+    $("qrType").value = "url";
+    updateForm();
+    $("urlInput").value = value;
+    generateQR();
+
+    $("generator").scrollIntoView({behavior:"smooth"});
+});
+
 // Logo upload.
 $("logoFile").addEventListener("change", function(event) {
     const file = event.target.files[0];
-
     if (!file) return;
 
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-        statusText.textContent = "Please upload a PNG, JPG or WEBP logo.";
+        statusText.textContent = "Please upload PNG, JPG or WEBP.";
         this.value = "";
         return;
     }
@@ -1153,11 +1362,9 @@ $("logoFile").addEventListener("change", function(event) {
 
         img.onload = function() {
             uploadedLogo = img;
-
             $("logoPreview").src = e.target.result;
             $("logoPreview").style.display = "block";
             $("removeLogo").style.display = "inline-block";
-
             statusText.textContent = "Logo uploaded successfully!";
         };
 
@@ -1173,33 +1380,20 @@ $("logoFile").addEventListener("change", function(event) {
 
 function removeLogo() {
     uploadedLogo = null;
-
     $("logoFile").value = "";
     $("logoPreview").src = "";
     $("logoPreview").style.display = "none";
     $("removeLogo").style.display = "none";
-
     statusText.textContent = "Logo removed.";
 }
 
-// Event listeners.
 $("qrType").addEventListener("change", updateForm);
 
 [
-    "urlInput",
-    "textInput",
-    "wifiName",
-    "wifiPassword",
-    "wifiSecurity",
-    "wifiHidden",
-    "contactName",
-    "contactPhone",
-    "contactEmail",
-    "contactCompany",
-    "contactWebsite",
-    "darkColor",
-    "lightColor",
-    "qrSize"
+    "urlInput","textInput","wifiName","wifiPassword",
+    "wifiSecurity","wifiHidden","contactName","contactPhone",
+    "contactEmail","contactCompany","contactWebsite",
+    "darkColor","lightColor","qrSize"
 ].forEach(id => {
     $(id).addEventListener("input", generateQR);
     $(id).addEventListener("change", generateQR);

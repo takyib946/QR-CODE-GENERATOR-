@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free QR Code Generator — Create & Customize QR Codes</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <!-- jsPDF for direct client-side PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        express: {
+                            blue: '#3B63FB',
+                            blueHover: '#274FE8',
+                            blueLight: '#EEF2FF',
+                            ink: '#18181B',
+                            muted: '#52525B',
+                            border: '#E5E7EB',
+                            surface: '#F8F9FA'
+                        }
+                    },
+                    boxShadow: {
+                        'card': '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.03)',
+                        'floating': '0 20px 40px -12px rgba(24, 24, 27, 0.10), 0 4px 16px -4px rgba(59, 99, 251, 0.08)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FFFFFF;
+            color: #18181B;
+        }
+        /* Subtle checkerboard pattern for transparent QR background preview */
+        .checkerboard-bg {
+            background-color: #ffffff;
+            background-image:
+                linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
+                linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
+                linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+        }
+        /* Smooth custom range slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 999px;
+            background: #E5E7EB;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #3B63FB;
+            cursor: pointer;
+            border: 3px solid #FFFFFF;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col selection:bg-express-blue selection:text-white">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Clean Editorial Top Header -->
+    <header class="border-b border-express-border bg-white/95 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#3B63FB] via-[#6366F1] to-[#EC4899] flex items-center justify-center text-white shadow-sm">
+                    <i data-lucide="qr-code" class="w-5 h-5"></i>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-display font-extrabold text-lg tracking-tight text-express-ink">QR Studio</span>
+                    <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-express-blueLight text-express-blue">
+                        Free • Never Expires
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button id="reset-all-btn" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold text-express-muted hover:text-express-ink hover:bg-express-surface border border-express-border transition-colors">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                    <span>Reset</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Hero & Split-Studio Container -->
+    <main class="flex-grow">
+        <!-- Hero Intro Banner -->
+        <section class="bg-gradient-to-b from-[#F8F9FC] to-white border-b border-express-border/70">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-8 sm:pt-12 sm:pb-10">
+                <div class="max-w-3xl">
+                    <h1 class="font-display font-extrabold text-3xl sm:text-4xl lg:text-[42px] leading-[1.15] tracking-tight text-express-ink">
+                        Generate a free QR code for any URL in seconds.
+                    </h1>
+                    <p class="mt-3.5 text-base sm:text-[17px] leading-relaxed text-express-muted">
+                        Customize colors, add your logo, and download as PNG, JPEG, or PDF. QR codes created with this studio never expire, making them ideal for business cards, menus, event flyers, classroom materials, and marketing campaigns.
+                    </p>
+                </div>
+
+                <!-- Primary Entry Bar (Payload Pill Switcher + Enter your URL + Pill CTA) -->
+                <div class="mt-7 max-w-4xl">
+                    <!-- Subtle Payload Mode Switcher -->
+                    <div class="inline-flex items-center gap-1 p-1 rounded-full bg-express-surface border border-express-border mb-3.5" role="tablist">
+                        <button type="button" role="tab" aria-selected="true" data-mode="url" class="mode-pill px-4 py-1.5 rounded-full text-xs font-semibold bg-white text-express-ink shadow-sm transition-all">
+                            Website URL
+                        </button>
+                        <button type="button" role="tab" aria-selected="false" data-mode="wifi" class="mode-pill px-4 py-1.5 rounded-full text-xs font-semibold text-express-muted hover:text-express-ink transition-all">
+                            Wi-Fi Network
+                        </button>
+                        <button type="button" role="tab" aria-selected="false" data-mode="vcard" class="mode-pill px-4 py-1.5 rounded-full text-xs font-semibold text-express-muted hover:text-express-ink transition-all">
+                            Contact (vCard)
+                        </button>
+                    </div>
+
+                    <!-- MODE 1: Primary "Enter your URL" + "Generate QR code" Bar -->
+                    <form id="hero-url-form" class="mode-entry flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <div class="relative flex-grow">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                <i data-lucide="link" class="w-5 h-5"></i>
+                            </div>
+                            <input
+                                type="text"
+                                id="url-input"
+                                value="https://example.com"
+                                placeholder="Enter your URL"
+                                aria-label="Enter your URL"
+                                autofocus
+                                class="w-full h-14 pl-12 pr-11 rounded-full bg-white border-2 border-express-border hover:border-slate-300 focus:border-express-blue focus:outline-none text-[15px] font-medium text-express-ink placeholder-slate-400 shadow-sm transition-all"
+                            >
+                            <button type="button" id="clear-url-btn" class="absolute inset-y-0 right-3 flex items-center px-2 text-slate-400 hover:text-express-ink transition-colors" title="Clear URL">
+                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <button
+                            type="submit"
+                            id="generate-cta-btn"
+                            class="h-14 px-8 rounded-full bg-express-blue hover:bg-express-blueHover active:scale-[0.99] text-white font-display font-bold text-[15px] tracking-tight shadow-md shadow-express-blue/25 transition-all shrink-0 flex items-center justify-center gap-2"
+                        >
+                            <span>Generate QR code</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </form>
+
+                    <!-- MODE 2: Wi-Fi Quick Entry -->
+                    <div id="wifi-entry-panel" class="mode-entry hidden bg-white rounded-2xl p-4 sm:p-5 border border-express-border shadow-sm">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                            <div>
+                                <label for="wifi-ssid" class="block text-xs font-semibold text-express-muted mb-1">Network Name (SSID)</label>
+                                <input type="text" id="wifi-ssid" value="Guest_WiFi" placeholder="Enter Wi-Fi name" class="w-full h-11 px-3.5 rounded-xl border border-express-border focus:border-express-blue focus:outline-none text-sm">
+                            </div>
+                            <div>
+                                <label for="wifi-pass" class="block text-xs font-semibold text-express-muted mb-1">Password</label>
+                                <input type="text" id="wifi-pass" value="Welcome2026" placeholder="Enter Wi-Fi password" class="w-full h-11 px-3.5 rounded-xl border border-express-border focus:border-express-blue focus:outline-none text-sm">
+                            </div>
+                            <div>
+                                <label for="wifi-enc" class="block text-xs font-semibold text-express-muted mb-1">Security</label>
+                                <select id="wifi-enc" class="w-full h-11 px-3.5 rounded-xl border border-express-border focus:border-express-blue focus:outline-none text-sm bg-white">
+                                    <option value="WPA" selected>WPA / WPA2</option>
+                                    <option value="WEP">WEP</option>
+                                    <option value="nopass">None (Open)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODE 3: vCard Contact Entry -->
+                    <div id="vcard-entry-panel" class="mode-entry hidden bg-white rounded-2xl p-4 sm:p-5 border border-express-border shadow-sm">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                            <div>
+                                <label for="vc-name" class="block text-xs font-semibold text-express-muted mb-1">Full Name</label>
+                                <input type="text" id="vc-name" value="Jordan Taylor" placeholder="Full Name" class="w-full h-11 px-3.5 rounded-xl border border-express-border focus:border-express-blue focus:outline-none text-sm">
+                            </div>
+                            <div>
+                                <label for="vc-phone" class="block text-xs font-semibold text-express-muted mb-1">Phone Number</label>
+                                <input type="tel" id="vc-phone" value="+1 555 234 5678" placeholder="+1 555 000 0000" class="w-full h-11 px-3.5 rounded-xl border border-express-border focus:border-express-blue focus:outline-none text-sm">
+                            </div>
+                            <div>
+                                <label for="vc-email" class="block text-xs font-semibold text-express-muted mb-1">Email Address</label>
+                                <input type="email" id="vc-email" value="jordan@example.com" placeholder="name@company.com" class="w-full h-11 px-3.5 rounded-xl border border-express-border focus:border-express-blue focus:outline-none text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Split-Studio Workspace: Customization Controls (Left) + Live Preview & Export (Right) -->
+        <section id="studio-workspace" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+                <!-- LEFT COLUMN: Clean Customization Studio (7 Columns) -->
+                <div class="lg:col-span-7 bg-white rounded-3xl border border-express-border shadow-card overflow-hidden">
+                    <!-- Studio Section Tabs -->
+                    <div class="flex border-b border-express-border bg-express-surface/60 px-2 pt-2 gap-1" role="tablist">
+                        <button type="button" role="tab" aria-selected="true" data-tab="style" class="studio-tab flex items-center gap-2 px-5 py-3 rounded-t-2xl text-sm font-display font-bold bg-white text-express-blue border-t border-x border-express-border -mb-px transition-all">
+                            <i data-lucide="shapes" class="w-4 h-4"></i>
+                            <span>Style &amp; Shape</span>
+                        </button>
+                        <button type="button" role="tab" aria-selected="false" data-tab="color" class="studio-tab flex items-center gap-2 px-5 py-3 rounded-t-2xl text-sm font-display font-semibold text-express-muted hover:text-express-ink transition-all">
+                            <i data-lucide="palette" class="w-4 h-4"></i>
+                            <span>Color</span>
+                        </button>
+                        <button type="button" role="tab" aria-selected="false" data-tab="logo" class="studio-tab flex items-center gap-2 px-5 py-3 rounded-t-2xl text-sm font-display font-semibold text-express-muted hover:text-express-ink transition-all">
+                            <i data-lucide="image-plus" class="w-4 h-4"></i>
+                            <span>Logo</span>
+                        </button>
+                    </div>
+
+                    <!-- TAB PANEL 1: STYLE & SHAPE -->
+                    <div id="tab-panel-style" class="studio-panel p-6 sm:p-8 space-y-7">
+                        <!-- Data Pattern / Module Dots -->
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-display font-bold text-sm text-express-ink">Pattern Style</h3>
+                                <span class="text-xs text-express-muted">Choose dot geometry</span>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <button type="button" data-dot="square" class="dot-style-btn flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl border-2 border-express-blue bg-express-blueLight/50 text-express-blue font-semibold text-xs transition-all">
+                                    <div class="grid grid-cols-2 gap-1 w-7 h-7">
+                                        <span class="bg-current"></span><span class="bg-current"></span>
+                                        <span class="bg-current"></span><span class="bg-current opacity-40"></span>
+                                    </div>
+                                    <span>Square</span>
+                                </button>
+                                <button type="button" data-dot="rounded" class="dot-style-btn flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl border border-express-border hover:border-slate-300 text-express-ink font-semibold text-xs transition-all">
+                                    <div class="grid grid-cols-2 gap-1 w-7 h-7">
+                                        <span class="bg-current rounded-[3px]"></span><span class="bg-current rounded-[3px]"></span>
+                                        <span class="bg-current rounded-[3px]"></span><span class="bg-current opacity-40 rounded-[3px]"></span>
+                                    </div>
+                                    <span>Rounded</span>
+                                </button>
+                                <button type="button" data-dot="dots" class="dot-style-btn flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl border border-express-border hover:border-slate-300 text-express-ink font-semibold text-xs transition-all">
+                                    <div class="grid grid-cols-2 gap-1 w-7 h-7">
+                                        <span class="bg-current rounded-full"></span><span class="bg-current rounded-full"></span>
+                                        <span class="bg-current rounded-full"></span><span class="bg-current opacity-40 rounded-full"></span>
+                                    </div>
+                                    <span>Dots</span>
+                                </button>
+                                <button type="button" data-dot="diamond" class="dot-style-btn flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl border border-express-border hover:border-slate-300 text-express-ink font-semibold text-xs transition-all">
+                                    <div class="grid grid-cols-2 gap-1.5 w-7 h-7 p-0.5">
+                                        <span class="bg-current rotate-45"></span><span class="bg-current rotate-45"></span>
+                                        <span class="bg-current rotate-45"></span><span class="bg-current opacity-40 rotate-45"></span>
+                                    </div>
+                                    <span>Diamond</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Corner / Marker Eye Styles -->
+                        <div class="pt-5 border-t border-express-border">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-display font-bold text-sm text-express-ink">Corner Marker Style</h3>
+                                <span class="text-xs text-express-muted">Finder eye frames</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button type="button" data-eye="square" class="eye-style-btn flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl border-2 border-express-blue bg-express-blueLight/50 text-express-blue font-semibold text-xs transition-all">
+                                    <span class="w-7 h-7 border-[3px] border-current flex items-center justify-center">
+                                        <span class="w-2.5 h-2.5 bg-current"></span>
+                                    </span>
+                                    <span>Sharp Square</span>
+                                </button>
+                                <button type="button" data-eye="rounded" class="eye-style-btn flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl border border-express-border hover:border-slate-300 text-express-ink font-semibold text-xs transition-all">
+                                    <span class="w-7 h-7 border-[3px] border-current rounded-lg flex items-center justify-center">
+                                        <span class="w-2.5 h-2.5 bg-current rounded-[2px]"></span>
+                                    </span>
+                                    <span>Soft Rounded</span>
+                                </button>
+                                <button type="button" data-eye="circle" class="eye-style-btn flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl border border-express-border hover:border-slate-300 text-express-ink font-semibold text-xs transition-all">
+                                    <span class="w-7 h-7 border-[3px] border-current rounded-full flex items-center justify-center">
+                                        <span class="w-2.5 h-2.5 bg-current rounded-full"></span>
+                                    </span>
+                                    <span>Modern Circle</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quiet Zone Margin -->
+                        <div class="pt-5 border-t border-express-border">
+                            <div class="flex items-center justify-between mb-2">
+                                <label for="margin-slider" class="font-display font-bold text-sm text-express-ink">Quiet Zone Border</label>
+                                <span id="margin-label" class="text-xs font-semibold text-express-blue">Standard (4 modules)</span>
+                            </div>
+                            <input type="range" id="margin-slider" min="1" max="6" value="4" class="w-full">
+                        </div>
+                    </div>
+
+                    <!-- TAB PANEL 2: COLOR -->
+                    <div id="tab-panel-color" class="studio-panel hidden p-6 sm:p-8 space-y-7">
+                        <!-- Quick Designer Color Presets -->
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-display font-bold text-sm text-express-ink">Quick Color Presets</h3>
+                                <button type="button" id="swap-colors-btn" class="inline-flex items-center gap-1.5 text-xs font-semibold text-express-blue hover:underline">
+                                    <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>
+                                    Swap Foreground &amp; Background
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+                                <button type="button" data-fg="#18181B" data-bg="#FFFFFF" class="color-preset flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-express-border hover:border-express-blue transition-all">
+                                    <span class="w-8 h-8 rounded-full border border-slate-200 shadow-inner" style="background: linear-gradient(135deg, #18181B 50%, #FFFFFF 50%);"></span>
+                                    <span class="text-[11px] font-medium">Classic</span>
+                                </button>
+                                <button type="button" data-fg="#3B63FB" data-bg="#FFFFFF" class="color-preset flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-express-border hover:border-express-blue transition-all">
+                                    <span class="w-8 h-8 rounded-full border border-slate-200 shadow-inner" style="background: linear-gradient(135deg, #3B63FB 50%, #FFFFFF 50%);"></span>
+                                    <span class="text-[11px] font-medium">Royal Blue</span>
+                                </button>
+                                <button type="button" data-fg="#0F766E" data-bg="#F0FDFA" class="color-preset flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-express-border hover:border-express-blue transition-all">
+                                    <span class="w-8 h-8 rounded-full border border-slate-200 shadow-inner" style="background: linear-gradient(135deg, #0F766E 50%, #F0FDFA 50%);"></span>
+                                    <span class="text-[11px] font-medium">Teal Mint</span>
+                                </button>
+                                <button type="button" data-fg="#BE123C" data-bg="#FFF1F2" class="color-preset flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-express-border hover:border-express-blue transition-all">
+                                    <span class="w-8 h-8 rounded-full border border-slate-200 shadow-inner" style="background: linear-gradient(135deg, #BE123C 50%, #FFF1F2 50%);"></span>
+                                    <span class="text-[11px] font-medium">Crimson</span>
+                                </button>
+                                <button type="button" data-fg="#6D28D9" data-bg="#F5F3FF" class="color-preset flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-express-border hover:border-express-blue transition-all">
+                                    <span class="w-8 h-8 rounded-full border border-slate-200 shadow-inner" style="background: linear-gradient(135deg, #6D28D9 50%, #F5F3FF 50%);"></span>
+                                    <span class="text-[11px] font-medium">Violet</span>
+                                </button>
+                                <button type="button" data-fg="#FFFFFF" data-bg="#18181B" class="color-preset flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-express-border hover:border-express-blue transition-all">
+                                    <span class="w-8 h-8 rounded-full border border-slate-200 shadow-inner" style="background: linear-gradient(135deg, #FFFFFF 50%, #18181B 50%);"></span>
+                                    <span class="text-[11px] font-medium">Inverted</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Custom Foreground & Background Pickers -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-5 border-t border-express-border">
+                            <div class="p-4 rounded-2xl bg-express-surface border border-express-border">
+                                <label for="fg-color-picker" class="block font-display font-bold text-xs text-express-ink mb-2.5">QR Code Color (Foreground)</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="color" id="fg-color-picker" value="#18181B" class="w-10 h-10 rounded-xl cursor-pointer border border-express-border bg-white p-0.5">
+                                    <input type="text" id="fg-color-hex" value="#18181B" maxlength="7" class="w-full h-10 px-3 rounded-xl border border-express-border bg-white font-mono text-xs uppercase focus:border-express-blue focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-2xl bg-express-surface border border-express-border">
+                                <div class="flex items-center justify-between mb-2.5">
+                                    <label for="bg-color-picker" class="font-display font-bold text-xs text-express-ink">Background Color</label>
+                                    <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-express-blue">
+                                        <input type="checkbox" id="transparent-bg-toggle" class="rounded text-express-blue focus:ring-express-blue">
+                                        <span>Transparent (PNG)</span>
+                                    </label>
+                                </div>
+                                <div id="bg-picker-controls" class="flex items-center gap-3 transition-opacity">
+                                    <input type="color" id="bg-color-picker" value="#FFFFFF" class="w-10 h-10 rounded-xl cursor-pointer border border-express-border bg-white p-0.5">
+                                    <input type="text" id="bg-color-hex" value="#FFFFFF" maxlength="7" class="w-full h-10 px-3 rounded-xl border border-express-border bg-white font-mono text-xs uppercase focus:border-express-blue focus:outline-none">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB PANEL 3: LOGO UPLOAD & BUILT-IN ICONS -->
+                    <div id="tab-panel-logo" class="studio-panel hidden p-6 sm:p-8 space-y-6">
+                        <!-- Upload Custom Brand Logo -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2.5">
+                                <h3 class="font-display font-bold text-sm text-express-ink">Upload Your Brand Logo</h3>
+                                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+                                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Auto High-ECC Scannability
+                                </span>
+                            </div>
+
+                            <label for="logo-file-input" class="flex flex-col items-center justify-center w-full h-32 rounded-2xl border-2 border-dashed border-slate-300 hover:border-express-blue bg-express-surface/60 hover:bg-express-blueLight/30 cursor-pointer transition-all group">
+                                <div class="flex flex-col items-center justify-center text-center px-4">
+                                    <div class="w-10 h-10 rounded-full bg-white border border-express-border flex items-center justify-center text-express-blue shadow-sm mb-2 group-hover:scale-105 transition-transform">
+                                        <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                                    </div>
+                                    <p class="text-xs font-semibold text-express-ink">
+                                        <span class="text-express-blue underline">Click to upload logo</span> (PNG, JPG, SVG, WebP)
+                                    </p>
+                                    <p id="uploaded-logo-name" class="text-[11px] text-express-muted mt-0.5">Recommended: square transparent PNG or SVG</p>
+                                </div>
+                                <input id="logo-file-input" type="file" accept="image/*" class="hidden">
+                            </label>
+                        </div>
+
+                        <!-- Or Pick a Clean Built-in Badge Icon -->
+                        <div class="pt-4 border-t border-express-border">
+                            <h3 class="font-display font-bold text-sm text-express-ink mb-3">Or Choose a Center Icon</h3>
+                            <div class="grid grid-cols-4 sm:grid-cols-7 gap-2.5">
+                                <button type="button" data-icon="none" class="logo-icon-btn flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border-2 border-express-blue bg-express-blueLight/50 text-express-blue text-[11px] font-semibold transition-all">
+                                    <i data-lucide="ban" class="w-5 h-5"></i>
+                                    <span>None</span>
+                                </button>
+                                <button type="button" data-icon="link" class="logo-icon-btn flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border border-express-border hover:border-slate-300 text-express-ink text-[11px] font-semibold transition-all">
+                                    <i data-lucide="link-2" class="w-5 h-5 text-express-blue"></i>
+                                    <span>Link</span>
+                                </button>
+                                <button type="button" data-icon="wifi" class="logo-icon-btn flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border border-express-border hover:border-slate-300 text-express-ink text-[11px] font-semibold transition-all">
+                                    <i data-lucide="wifi" class="w-5 h-5 text-emerald-600"></i>
+                                    <span>Wi-Fi</span>
+                                </button>
+                                <button type="button" data-icon="menu" class="logo-icon-btn flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border border-express-border hover:border-slate-300 text-express-ink text-[11px] font-semibold transition-all">
+                                    <i data-lucide="utensils" class="w-5 h-5 text-amber-600"></i>
+                                    <span>Menu</span>
+                                </button>
+                                <button type="button" data-icon="pin" class="logo-icon-btn flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border border-express-border hover:border-slate-300 text-express-ink text-[11px] font-semibold transition-all">
+                                    <i data-lucide="map-pin" class="w-5 h-5 text-rose-600"></i>
+                                    <span>Map</span>
+                                </button>
+                                <button type="button" data-icon="star" class="logo-icon-btn flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border border-express-border hover:border-slate-300 text-express-ink text-[11px] font-semibold transition-all">
+                                    <i data-lucide="star" class="w-5 h-5 text-yellow-500"></i>
+                                    <span>Star</span>
+                                </button>
+                                <button type="button" data-icon="bag" class="logo-icon-btn flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border border-express-border hover:border-slate-300 text-express-ink text-[11px] font-semibold transition-all">
+                                    <i data-lucide="shopping-bag" class="w-5 h-5 text-indigo-600"></i>
+                                    <span>Shop</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Logo Size Slider -->
+                        <div id="logo-size-control" class="pt-4 border-t border-express-border opacity-50 pointer-events-none transition-opacity">
+                            <div class="flex items-center justify-between mb-2">
+                                <label for="logo-size-slider" class="font-display font-bold text-xs text-express-ink">Logo Scale</label>
+                                <span id="logo-size-value" class="text-xs font-semibold text-express-blue">22%</span>
+                            </div>
+                            <input type="range" id="logo-size-slider" min="14" max="28" value="22" class="w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: Elevated Live QR Preview & PNG / JPEG / PDF Download Card (5 Columns) -->
+                <div class="lg:col-span-5 lg:sticky lg:top-24">
+                    <div class="bg-white rounded-3xl border border-express-border shadow-floating p-6 sm:p-7 flex flex-col items-center">
+                        
+                        <!-- Scannability Badge Header -->
+                        <div class="w-full flex items-center justify-between mb-4">
+                            <span id="contrast-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span id="contrast-text">High Contrast • Easy to Scan</span>
+                            </span>
+                            <span class="text-[11px] font-medium text-express-muted">Live Preview</span>
+                        </div>
+
+                        <!-- QR Code Preview Stage -->
+                        <div id="preview-stage" class="w-full aspect-square max-w-[290px] rounded-2xl border border-express-border p-3 flex items-center justify-center bg-white shadow-inner transition-all">
+                            <canvas id="qr-canvas" class="w-full h-full object-contain rounded-xl"></canvas>
+                        </div>
+
+                        <!-- Resolution Selector -->
+                        <div class="w-full mt-5 pt-4 border-t border-express-border flex items-center justify-between">
+                            <label for="export-resolution" class="text-xs font-semibold text-express-muted">Export Quality</label>
+                            <select id="export-resolution" class="text-xs font-semibold text-express-ink bg-express-surface border border-express-border rounded-full px-3.5 py-1.5 focus:border-express-blue focus:outline-none">
+                                <option value="1000">High Res (1000 × 1000 px)</option>
+                                <option value="2000" selected>Print Ready (2000 × 2000 px)</option>
+                                <option value="3000">Ultra HD (3000 × 3000 px)</option>
+                            </select>
+                        </div>
+
+                        <!-- Primary Multi-Format Download Buttons: PNG, JPEG, PDF -->
+                        <div class="w-full mt-5 space-y-2.5">
+                            <p class="text-[11px] font-bold uppercase tracking-wider text-express-muted text-center">Download your QR code</p>
+                            <div class="grid grid-cols-3 gap-2.5">
+                                <button type="button" id="download-png-btn" class="h-12 rounded-full bg-express-blue hover:bg-express-blueHover active:scale-[0.98] text-white font-display font-bold text-sm shadow-md shadow-express-blue/20 flex items-center justify-center gap-1.5 transition-all">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                    <span>PNG</span>
+                                </button>
+                                <button type="button" id="download-jpeg-btn" class="h-12 rounded-full bg-express-ink hover:bg-slate-800 active:scale-[0.98] text-white font-display font-bold text-sm shadow-sm flex items-center justify-center gap-1.5 transition-all">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                    <span>JPEG</span>
+                                </button>
+                                <button type="button" id="download-pdf-btn" class="h-12 rounded-full bg-white hover:bg-express-surface active:scale-[0.98] text-express-ink border-2 border-express-border hover:border-express-ink font-display font-bold text-sm flex items-center justify-center gap-1.5 transition-all">
+                                    <i data-lucide="file-text" class="w-4 h-4 text-rose-600"></i>
+                                    <span>PDF</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Reassurance Footer Note -->
+                        <p class="mt-4 text-center text-[11px] text-express-muted flex items-center justify-center gap-1.5">
+                            <i data-lucide="infinity" class="w-3.5 h-3.5 text-express-blue"></i>
+                            <span>Static QR code • Free forever &amp; never expires</span>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Clean Use-Case Strip (Matching Prompt Copy) -->
+        <section class="border-t border-express-border bg-express-surface/60 py-10 mt-6">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <div class="bg-white p-4 rounded-2xl border border-express-border flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-blue-50 text-express-blue flex items-center justify-center shrink-0">
+                            <i data-lucide="briefcase" class="w-4 h-4"></i>
+                        </div>
+                        <span class="text-xs font-display font-bold text-express-ink">Business Cards</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-express-border flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="utensils" class="w-4 h-4"></i>
+                        </div>
+                        <span class="text-xs font-display font-bold text-express-ink">Restaurant Menus</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-express-border flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="ticket" class="w-4 h-4"></i>
+                        </div>
+                        <span class="text-xs font-display font-bold text-express-ink">Event Flyers</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-express-border flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                        </div>
+                        <span class="text-xs font-display font-bold text-express-ink">Classroom Materials</span>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1 bg-white p-4 rounded-2xl border border-express-border flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="megaphone" class="w-4 h-4"></i>
+                        </div>
+                        <span class="text-xs font-display font-bold text-express-ink">Marketing Campaigns</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Interactive Studio Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            // Studio State
+            const state = {
+                mode: 'url',
+                dotStyle: 'square',      // 'square' | 'rounded' | 'dots' | 'diamond'
+                eyeStyle: 'square',      // 'square' | 'rounded' | 'circle'
+                fgColor: '#18181B',
+                bgColor: '#FFFFFF',
+                transparentBg: false,
+                margin: 4,
+                logoType: 'none',        // 'none' | 'upload' | 'link' | 'wifi' | 'menu' | 'pin' | 'star' | 'bag'
+                uploadedImage: null,     // HTMLImageElement
+                logoScale: 0.22,
+                resolution: 2000
+            };
+
+            // Built-in SVG icon data URIs for crisp canvas rendering
+            const builtInIcons = {
+                link: `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#3B63FB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
+                wifi: `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>`,
+                menu: `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>`,
+                pin: `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`,
+                star: `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="#EAB308" stroke="#EAB308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+                bag: `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`
+            };
+
+            const preloadedIconImages = {};
+            Object.entries(builtInIcons).forEach(([key, svg]) => {
+                const img = new Image();
+                img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+                img.onload = () => { if (state.logoType === key) renderPreview(); };
+                preloadedIconImages[key] = img;
+            });
+
+            // DOM References
+            const els = {
+                modePills: document.querySelectorAll('.mode-pill'),
+                heroUrlForm: document.getElementById('hero-url-form'),
+                urlInput: document.getElementById('url-input'),
+                clearUrlBtn: document.getElementById('clear-url-btn'),
+                wifiEntryPanel: document.getElementById('wifi-entry-panel'),
+                wifiSsid: document.getElementById('wifi-ssid'),
+                wifiPass: document.getElementById('wifi-pass'),
+                wifiEnc: document.getElementById('wifi-enc'),
+                vcardEntryPanel: document.getElementById('vcard-entry-panel'),
+                vcName: document.getElementById('vc-name'),
+                vcPhone: document.getElementById('vc-phone'),
+                vcEmail: document.getElementById('vc-email'),
+                studioTabs: document.querySelectorAll('.studio-tab'),
+                studioPanels: document.querySelectorAll('.studio-panel'),
+                dotStyleBtns: document.querySelectorAll('.dot-style-btn'),
+                eyeStyleBtns: document.querySelectorAll('.eye-style-btn'),
+                marginSlider: document.getElementById('margin-slider'),
+                marginLabel: document.getElementById('margin-label'),
+                colorPresets: document.querySelectorAll('.color-preset'),
+                fgColorPicker: document.getElementById('fg-color-picker'),
+                fgColorHex: document.getElementById('fg-color-hex'),
+                bgColorPicker: document.getElementById('bg-color-picker'),
+                bgColorHex: document.getElementById('bg-color-hex'),
+                transparentBgToggle: document.getElementById('transparent-bg-toggle'),
+                bgPickerControls: document.getElementById('bg-picker-controls'),
+                swapColorsBtn: document.getElementById('swap-colors-btn'),
+                logoFileInput: document.getElementById('logo-file-input'),
+                uploadedLogoName: document.getElementById('uploaded-logo-name'),
+                logoIconBtns: document.querySelectorAll('.logo-icon-btn'),
+                logoSizeControl: document.getElementById('logo-size-control'),
+                logoSizeSlider: document.getElementById('logo-size-slider'),
+                logoSizeValue: document.getElementById('logo-size-value'),
+                previewStage: document.getElementById('preview-stage'),
+                qrCanvas: document.getElementById('qr-canvas'),
+                contrastBadge: document.getElementById('contrast-badge'),
+                contrastText: document.getElementById('contrast-text'),
+                exportResolution: document.getElementById('export-resolution'),
+                downloadPngBtn: document.getElementById('download-png-btn'),
+                downloadJpegBtn: document.getElementById('download-jpeg-btn'),
+                downloadPdfBtn: document.getElementById('download-pdf-btn'),
+                resetAllBtn: document.getElementById('reset-all-btn'),
+                toastContainer: document.getElementById('toast-container')
+            };
+
+            function showToast(message, isError = false) {
+                const toast = document.createElement('div');
+                toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-full shadow-lg text-xs font-semibold transform translate-y-2 opacity-0 transition-all duration-300 ${
+                    isError ? 'bg-rose-600 text-white' : 'bg-express-ink text-white'
+                }`;
+                toast.innerHTML = `<i data-lucide="${isError ? 'alert-circle' : 'check-circle-2'}" class="w-4 h-4 shrink-0"></i><span>${message}</span>`;
+                els.toastContainer.appendChild(toast);
+                lucide.createIcons({ nodes: [toast] });
+                requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
+                setTimeout(() => {
+                    toast.classList.add('translate-y-2', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, 2800);
+            }
+
+            // Build Payload String
+            function getPayload() {
+                if (state.mode === 'url') {
+                    return els.urlInput.value.trim() || 'https://example.com';
+                }
+                if (state.mode === 'wifi') {
+                    const ssid = els.wifiSsid.value.trim().replace(/([\\;,:"])/g, '\\$1');
+                    const enc = els.wifiEnc.value;
+                    const pass = enc === 'nopass' ? '' : els.wifiPass.value.replace(/([\\;,:"])/g, '\\$1');
+                    return `WIFI:T:${enc};S:${ssid};P:${pass};;`;
+                }
+                if (state.mode === 'vcard') {
+                    const name = els.vcName.value.trim() || 'Contact';
+                    const phone = els.vcPhone.value.trim();
+                    const email = els.vcEmail.value.trim();
+                    return [
+                        'BEGIN:VCARD',
+                        'VERSION:3.0',
+                        `FN:${name}`,
+                        phone ? `TEL:${phone}` : '',
+                        email ? `EMAIL:${email}` : '',
+                        'END:VCARD'
+                    ].filter(Boolean).join('\n');
+                }
+                return 'https://example.com';
+            }
+
+            // Contrast Check Helper
+            function checkContrast() {
+                if (state.transparentBg) {
+                    els.contrastBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-express-blue border border-blue-200/70';
+                    els.contrastText.textContent = 'Transparent PNG Ready';
+                    return;
+                }
+                const lum = (hex) => {
+                    const c = hex.replace('#', '');
+                    if (c.length !== 6) return 0;
+                    const rgb = [0, 2, 4].map(i => parseInt(c.slice(i, i + 2), 16) / 255)
+                        .map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+                    return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+                };
+                const l1 = lum(state.fgColor);
+                const l2 = lum(state.bgColor);
+                const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+
+                if (ratio >= 4.0) {
+                    els.contrastBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70';
+                    els.contrastText.textContent = `High Contrast (${ratio.toFixed(1)}:1) • Easy to Scan`;
+                } else {
+                    els.contrastBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/70';
+                    els.contrastText.textContent = `Low Contrast (${ratio.toFixed(1)}:1) • Test Scan`;
+                }
+            }
+
+            // Helper: Rounded Rectangle Path on Canvas
+            function drawRoundedRect(ctx, x, y, w, h, r) {
+                const radius = Math.min(r, w / 2, h / 2);
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.arcTo(x + w, y, x + w, y + h, radius);
+                ctx.arcTo(x + w, y + h, x, y + h, radius);
+                ctx.arcTo(x, y + h, x, y, radius);
+                ctx.arcTo(x, y, x + w, y, radius);
+                ctx.closePath();
+            }
+
+            // Core High-Resolution QR Canvas Renderer
+            function drawQRToCanvas(canvas, pixelSize, forceOpaqueWhite = false) {
+                const payload = getPayload();
+                // Use High Error Correction ('H') when a center logo is active, else 'M'
+                const eccLevel = state.logoType !== 'none' ? 'H' : 'M';
+                const qr = qrcode(0, eccLevel);
+                qr.addData(payload);
+                qr.make();
+
+                const count = qr.getModuleCount();
+                const margin = state.margin;
+                const totalModules = count + margin * 2;
+                const cellSize = pixelSize / totalModules;
+
+                canvas.width = pixelSize;
+                canvas.height = pixelSize;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, pixelSize, pixelSize);
+
+                // Background Fill
+                if (!state.transparentBg || forceOpaqueWhite) {
+                    ctx.fillStyle = state.transparentBg ? '#FFFFFF' : state.bgColor;
+                    ctx.fillRect(0, 0, pixelSize, pixelSize);
+                }
+
+                // Determine center logo knockout bounds
+                const hasLogo = state.logoType !== 'none';
+                const logoBoxModules = hasLogo ? Math.ceil(count * state.logoScale) : 0;
+                const knockoutMin = (count - logoBoxModules) / 2;
+                const knockoutMax = (count + logoBoxModules) / 2;
+
+                const isFinder = (r, c) =>
+                    (r < 7 && c < 7) ||
+                    (r < 7 && c >= count - 7) ||
+                    (r >= count - 7 && c < 7);
+
+                const isLogoZone = (r, c) =>
+                    hasLogo && r >= knockoutMin && r < knockoutMax && c >= knockoutMin && c < knockoutMax;
+
+                ctx.fillStyle = state.fgColor;
+
+                // 1. Draw Data Modules
+                for (let r = 0; r < count; r++) {
+                    for (let c = 0; c < count; c++) {
+                        if (!qr.isDark(r, c) || isFinder(r, c) || isLogoZone(r, c)) continue;
+
+                        const x = (c + margin) * cellSize;
+                        const y = (r + margin) * cellSize;
+
+                        if (state.dotStyle === 'square') {
+                            ctx.fillRect(x, y, cellSize + 0.35, cellSize + 0.35);
+                        } else if (state.dotStyle === 'rounded') {
+                            const pad = cellSize * 0.06;
+                            drawRoundedRect(ctx, x + pad, y + pad, cellSize - pad * 2, cellSize - pad * 2, cellSize * 0.32);
+                            ctx.fill();
+                        } else if (state.dotStyle === 'dots') {
+                            ctx.beginPath();
+                            ctx.arc(x + cellSize / 2, y + cellSize / 2, cellSize * 0.43, 0, Math.PI * 2);
+                            ctx.fill();
+                        } else if (state.dotStyle === 'diamond') {
+                            const cx = x + cellSize / 2;
+                            const cy = y + cellSize / 2;
+                            const rad = cellSize * 0.48;
+                            ctx.beginPath();
+                            ctx.moveTo(cx, cy - rad);
+                            ctx.lineTo(cx + rad, cy);
+                            ctx.lineTo(cx, cy + rad);
+                            ctx.lineTo(cx - rad, cy);
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+                    }
+                }
+
+                // 2. Draw 3 Corner Finder Eyes
+                const eyePositions = [
+                    [margin, margin],
+                    [margin + count - 7, margin],
+                    [margin, margin + count - 7]
+                ];
+
+                eyePositions.forEach(([ex, ey]) => {
+                    const px = ex * cellSize;
+                    const py = ey * cellSize;
+                    const outerSize = 7 * cellSize;
+                    const innerCut = 5 * cellSize;
+                    const coreSize = 3 * cellSize;
+
+                    if (state.eyeStyle === 'square') {
+                        ctx.fillStyle = state.fgColor;
+                        ctx.fillRect(px, py, outerSize, outerSize);
+                        if (state.transparentBg && !forceOpaqueWhite) {
+                            ctx.clearRect(px + cellSize, py + cellSize, innerCut, innerCut);
+                        } else {
+                            ctx.fillStyle = state.transparentBg ? '#FFFFFF' : state.bgColor;
+                            ctx.fillRect(px + cellSize, py + cellSize, innerCut, innerCut);
+                        }
+                        ctx.fillStyle = state.fgColor;
+                        ctx.fillRect(px + 2 * cellSize, py + 2 * cellSize, coreSize, coreSize);
+                    } else if (state.eyeStyle === 'rounded') {
+                        ctx.fillStyle = state.fgColor;
+                        drawRoundedRect(ctx, px, py, outerSize, outerSize, cellSize * 1.8);
+                        ctx.fill();
+
+                        ctx.save();
+                        drawRoundedRect(ctx, px + cellSize, py + cellSize, innerCut, innerCut, cellSize * 1.2);
+                        if (state.transparentBg && !forceOpaqueWhite) {
+                            ctx.clip();
+                            ctx.clearRect(px + cellSize, py + cellSize, innerCut, innerCut);
+                        } else {
+                            ctx.fillStyle = state.transparentBg ? '#FFFFFF' : state.bgColor;
+                            ctx.fill();
+                        }
+                        ctx.restore();
+
+                        ctx.fillStyle = state.fgColor;
+                        drawRoundedRect(ctx, px + 2 * cellSize, py + 2 * cellSize, coreSize, coreSize, cellSize * 0.8);
+                        ctx.fill();
+                    } else if (state.eyeStyle === 'circle') {
+                        const cx = px + outerSize / 2;
+                        const cy = py + outerSize / 2;
+                        ctx.fillStyle = state.fgColor;
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, outerSize / 2, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, innerCut / 2, 0, Math.PI * 2);
+                        if (state.transparentBg && !forceOpaqueWhite) {
+                            ctx.clip();
+                            ctx.clearRect(px, py, outerSize, outerSize);
+                        } else {
+                            ctx.fillStyle = state.transparentBg ? '#FFFFFF' : state.bgColor;
+                            ctx.fill();
+                        }
+                        ctx.restore();
+
+                        ctx.fillStyle = state.fgColor;
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, coreSize / 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+
+                // 3. Draw Center Logo / Icon Badge
+                if (hasLogo) {
+                    const badgeSize = logoBoxModules * cellSize;
+                    const bx = (pixelSize - badgeSize) / 2;
+                    const by = (pixelSize - badgeSize) / 2;
+                    const pad = badgeSize * 0.14;
+
+                    // Protective backing plate
+                    ctx.save();
+                    drawRoundedRect(ctx, bx, by, badgeSize, badgeSize, badgeSize * 0.24);
+                    if (state.transparentBg && !forceOpaqueWhite) {
+                        ctx.clip();
+                        ctx.clearRect(bx, by, badgeSize, badgeSize);
+                    } else {
+                        ctx.fillStyle = state.transparentBg ? '#FFFFFF' : state.bgColor;
+                        ctx.fill();
+                    }
+                    ctx.restore();
+
+                    const imgToDraw = state.logoType === 'upload'
+                        ? state.uploadedImage
+                        : preloadedIconImages[state.logoType];
+
+                    if (imgToDraw && imgToDraw.complete) {
+                        // Preserve aspect ratio inside square logo box
+                        const avail = badgeSize - pad * 2;
+                        const iw = imgToDraw.naturalWidth || imgToDraw.width || avail;
+                        const ih = imgToDraw.naturalHeight || imgToDraw.height || avail;
+                        const scale = Math.min(avail / iw, avail / ih);
+                        const dw = iw * scale;
+                        const dh = ih * scale;
+                        ctx.drawImage(imgToDraw, bx + (badgeSize - dw) / 2, by + (badgeSize - dh) / 2, dw, dh);
+                    }
+                }
+            }
+
+            // Update Live Preview Canvas
+            function renderPreview() {
+                checkContrast();
+                els.previewStage.classList.toggle('checkerboard-bg', state.transparentBg);
+                try {
+                    drawQRToCanvas(els.qrCanvas, 900, false);
+                } catch (err) {
+                    showToast('URL or text is too long for a QR code.', true);
+                }
+            }
+
+            // --- Event Listeners: Hero Entry & Payload Modes ---
+            els.heroUrlForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                renderPreview();
+                showToast('QR code updated');
+            });
+
+            [els.urlInput, els.wifiSsid, els.wifiPass, els.wifiEnc, els.vcName, els.vcPhone, els.vcEmail].forEach(input => {
+                input.addEventListener('input', renderPreview);
+                input.addEventListener('change', renderPreview);
+            });
+
+            els.clearUrlBtn.addEventListener('click', () => {
+                els.urlInput.value = '';
+                els.urlInput.focus();
+                renderPreview();
+            });
+
+            els.modePills.forEach(pill => {
+                pill.addEventListener('click', () => {
+                    state.mode = pill.dataset.mode;
+                    els.modePills.forEach(p => {
+                        const active = p.dataset.mode === state.mode;
+                        p.setAttribute('aria-selected', active);
+                        p.className = active
+                            ? 'mode-pill px-4 py-1.5 rounded-full text-xs font-semibold bg-white text-express-ink shadow-sm transition-all'
+                            : 'mode-pill px-4 py-1.5 rounded-full text-xs font-semibold text-express-muted hover:text-express-ink transition-all';
+                    });
+                    els.heroUrlForm.classList.toggle('hidden', state.mode !== 'url');
+                    els.wifiEntryPanel.classList.toggle('hidden', state.mode !== 'wifi');
+                    els.vcardEntryPanel.classList.toggle('hidden', state.mode !== 'vcard');
+                    renderPreview();
+                });
+            });
+
+            // --- Event Listeners: Studio Tabs ---
+            els.studioTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.dataset.tab;
+                    els.studioTabs.forEach(t => {
+                        const active = t.dataset.tab === target;
+                        t.setAttribute('aria-selected', active);
+                        t.className = active
+                            ? 'studio-tab flex items-center gap-2 px-5 py-3 rounded-t-2xl text-sm font-display font-bold bg-white text-express-blue border-t border-x border-express-border -mb-px transition-all'
+                            : 'studio-tab flex items-center gap-2 px-5 py-3 rounded-t-2xl text-sm font-display font-semibold text-express-muted hover:text-express-ink transition-all';
+                    });
+                    els.studioPanels.forEach(panel => {
+                        panel.classList.toggle('hidden', panel.id !== `tab-panel-${target}`);
+                    });
+                });
+            });
+
+            // --- Style & Shape Controls ---
+            els.dotStyleBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.dotStyle = btn.dataset.dot;
+                    els.dotStyleBtns.forEach(b => {
+                        const active = b.dataset.dot === state.dotStyle;
+                        b.className = active
+                            ? 'dot-style-btn flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl border-2 border-express-blue bg-express-blueLight/50 text-express-blue font-semibold text-xs transition-all'
+                            : 'dot-style-btn flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl border border-express-border hover:border-slate-300 text-express-ink font-semibold text-xs transition-all';
+                    });
+                    renderPreview();
+                });
+            });
+
+            els.eyeStyleBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.eyeStyle = btn.dataset.eye;
+                    els.eyeStyleBtns.forEach(b => {
+                        const active = b.dataset.eye === state.eyeStyle;
+                        b.className = active
+                            ? 'eye-style-btn flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl border-2 border-express-blue bg-express-blueLight/50 text-express-blue font-semibold text-xs transition-all'
+                            : 'eye-style-btn flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl border border-express-border hover:border-slate-300 text-express-ink font-semibold text-xs transition-all';
+                    });
+                    renderPreview();
+                });
+            });
+
+            els.marginSlider.addEventListener('input', (e) => {
+                state.margin = parseInt(e.target.value, 10);
+                els.marginLabel.textContent = `${state.margin} module${state.margin > 1 ? 's' : ''}`;
+                renderPreview();
+            });
+
+            // --- Color Controls ---
+            function applyColors(fg, bg) {
+                state.fgColor = fg;
+                state.bgColor = bg;
+                els.fgColorPicker.value = fg;
+                els.fgColorHex.value = fg.toUpperCase();
+                els.bgColorPicker.value = bg;
+                els.bgColorHex.value = bg.toUpperCase();
+                renderPreview();
+            }
+
+            els.colorPresets.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.transparentBg = false;
+                    els.transparentBgToggle.checked = false;
+                    els.bgPickerControls.classList.remove('opacity-40', 'pointer-events-none');
+                    applyColors(btn.dataset.fg, btn.dataset.bg);
+                });
+            });
+
+            els.fgColorPicker.addEventListener('input', (e) => applyColors(e.target.value, state.bgColor));
+            els.bgColorPicker.addEventListener('input', (e) => applyColors(state.fgColor, e.target.value));
+
+            els.fgColorHex.addEventListener('input', (e) => {
+                if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) applyColors(e.target.value, state.bgColor);
+            });
+            els.bgColorHex.addEventListener('input', (e) => {
+                if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) applyColors(state.fgColor, e.target.value);
+            });
+
+            els.transparentBgToggle.addEventListener('change', (e) => {
+                state.transparentBg = e.target.checked;
+                els.bgPickerControls.classList.toggle('opacity-40', state.transparentBg);
+                els.bgPickerControls.classList.toggle('pointer-events-none', state.transparentBg);
+                renderPreview();
+            });
+
+            els.swapColorsBtn.addEventListener('click', () => {
+                if (state.transparentBg) return;
+                applyColors(state.bgColor, state.fgColor);
+            });
+
+            // --- Logo & Icon Controls ---
+            function setActiveIconButton(selectedKey) {
+                els.logoIconBtns.forEach(b => {
+                    const active = b.dataset.icon === selectedKey;
+                    b.className = active
+                        ? 'logo-icon-btn flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border-2 border-express-blue bg-express-blueLight/50 text-express-blue text-[11px] font-semibold transition-all'
+                        : 'logo-icon-btn flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border border-express-border hover:border-slate-300 text-express-ink text-[11px] font-semibold transition-all';
+                });
+                const hasLogo = state.logoType !== 'none';
+                els.logoSizeControl.classList.toggle('opacity-50', !hasLogo);
+                els.logoSizeControl.classList.toggle('pointer-events-none', !hasLogo);
+            }
+
+            els.logoIconBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.logoType = btn.dataset.icon;
+                    if (state.logoType !== 'upload') {
+                        els.uploadedLogoName.textContent = 'Recommended: square transparent PNG or SVG';
+                    }
+                    setActiveIconButton(state.logoType);
+                    renderPreview();
+                });
+            });
+
+            els.logoFileInput.addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        state.uploadedImage = img;
+                        state.logoType = 'upload';
+                        els.uploadedLogoName.textContent = `Uploaded: ${file.name}`;
+                        setActiveIconButton('__upload__');
+                        renderPreview();
+                        showToast('Custom logo added to QR code');
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            els.logoSizeSlider.addEventListener('input', (e) => {
+                const pct = parseInt(e.target.value, 10);
+                state.logoScale = pct / 100;
+                els.logoSizeValue.textContent = `${pct}%`;
+                renderPreview();
+            });
+
+            // --- Multi-Format Downloads: PNG, JPEG, PDF ---
+            els.exportResolution.addEventListener('change', (e) => {
+                state.resolution = parseInt(e.target.value, 10);
+            });
+
+            function triggerDownload(dataUrl, filename) {
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            // 1. Download PNG
+            els.downloadPngBtn.addEventListener('click', () => {
+                const offscreen = document.createElement('canvas');
+                drawQRToCanvas(offscreen, state.resolution, false);
+                triggerDownload(offscreen.toDataURL('image/png'), `qr-code-${state.resolution}px.png`);
+                showToast(`Downloaded PNG (${state.resolution}×${state.resolution}px)`);
+            });
+
+            // 2. Download JPEG (always forces opaque background since JPEG has no alpha channel)
+            els.downloadJpegBtn.addEventListener('click', () => {
+                const offscreen = document.createElement('canvas');
+                drawQRToCanvas(offscreen, state.resolution, true);
+                triggerDownload(offscreen.toDataURL('image/jpeg', 0.96), `qr-code-${state.resolution}px.jpg`);
+                showToast(`Downloaded JPEG (${state.resolution}×${state.resolution}px)`);
+            });
+
+            // 3. Download Print-Ready PDF via jsPDF
+            els.downloadPdfBtn.addEventListener('click', () => {
+                const offscreen = document.createElement('canvas');
+                drawQRToCanvas(offscreen, state.resolution, true);
+                const imgData = offscreen.toDataURL('image/png');
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const qrSizeMm = 110;
+                const xPos = (pageWidth - qrSizeMm) / 2;
+                const yPos = 55;
+
+                pdf.addImage(imgData, 'PNG', xPos, yPos, qrSizeMm, qrSizeMm);
+
+                // Subtle caption underneath the QR code on the PDF sheet
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(10);
+                pdf.setTextColor(100, 116, 139);
+                const label = getPayload().split('\n')[0].slice(0, 64);
+                pdf.text(label, pageWidth / 2, yPos + qrSizeMm + 12, { align: 'center' });
+
+                pdf.save('qr-code-print.pdf');
+                showToast('Downloaded print-ready PDF');
+            });
+
+            // Reset Studio
+            els.resetAllBtn.addEventListener('click', () => {
+                els.urlInput.value = 'https://example.com';
+                state.dotStyle = 'square';
+                state.eyeStyle = 'square';
+                state.margin = 4;
+                els.marginSlider.value = 4;
+                els.marginLabel.textContent = 'Standard (4 modules)';
+                state.transparentBg = false;
+                els.transparentBgToggle.checked = false;
+                els.bgPickerControls.classList.remove('opacity-40', 'pointer-events-none');
+                applyColors('#18181B', '#FFFFFF');
+                els.dotStyleBtns[0].click();
+                els.eyeStyleBtns[0].click();
+                els.logoIconBtns[0].click();
+                showToast('Studio reset to defaults');
+            });
+
+            // Initial Render
+            renderPreview();
+        });
+    </script>
+</body>
+                                  </html>
